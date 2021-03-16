@@ -8,7 +8,7 @@ const server = new ApolloServer({
   introspection: environment.apollo.introspection,
   mocks: true, // TODO: Remove in PROD.
   mockEntireSchema: false, // TODO: Remove in PROD.
-  playground: environment.apollo.playground,
+  playground: environment.apollo.playground
 });
 
 server
