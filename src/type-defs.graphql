@@ -20,7 +20,7 @@ type User {
   """
   Posts published by user.
   """
-  posts: [Post]
+  restaurants: [Restaurant]
 
   """
   Users that this user is following.
@@ -33,7 +33,7 @@ type User {
   followers: [User]
 }
 
-type Post {
+type Restaurant {
   """
   Post ID.
   """
@@ -42,12 +42,12 @@ type Post {
   """
   Post title.
   """
-  title: String!
+  name: String!
 
   """
   Post content.
   """
-  content: String!
+  description: String!
 
   """
   Post Author.
@@ -67,29 +67,29 @@ type Query {
   """
   Get post by ID.
   """
-  post(id: ID!): Post
+  restaurant(id: ID!): Restaurant
 }
 
 """
 Publish post input.
 """
-input PublishPostInput {
+input ShareRestaurantInput {
   """
-  Post title.
+  Restaurant title.
   """
-  title: String!
+  name: String!
 
   """
-  Post content.
+  Restaurant content.
   """
-  content: String!
+  description: String!
 }
 
 type Mutation {
   """
-  Publish post.
+  Share post.
   """
-  publishPost(input: PublishPostInput!): Post!
+  shareRestaurant(input: ShareRestaurantInput!): Restaurant!
 
   """
   Follow user.
@@ -117,10 +117,10 @@ type Mutation {
   Like post.
   Returns the updated number of likes received.
   """
-  likePost(
+  likeRestaurant(
     """
     Post's ID to like.
     """
-    postId: ID!
+    restaurantId: ID!
   ): Int!
 }
