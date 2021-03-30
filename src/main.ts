@@ -18,7 +18,8 @@ import * as typeDefs from './type-defs.graphql';
 
   server
     .listen(environment.port)
-    .then(({ url }) => console.log(`Server ready at ${url}. `));
+    .then(({ url }) => console.log(`Server ready at ${url}. `))
+    .catch((errors) => console.log(errors));
 
   if (module.hot) {
     module.hot.accept();
