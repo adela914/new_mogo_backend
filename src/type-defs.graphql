@@ -1,72 +1,32 @@
-type User {
-  """
-  User ID.
-  """
-  id: ID!
-
-  """
-  User's first name.
-  """
-  firstName: String!
-
-  """
-  User's last name.
-  """
-  lastName: String!
+type User @entity {
+  id: ID! @id
+  firstName: String! @column
+  lastName: String! @column
 
   # User's e-mail address.
   # email: TODO: Define type.
-
-  """
-  Posts published by user.
-  """
-  restaurants: [Restaurant]
+  restaurants: [Restaurant] @link
 
   """
   Users that this user is following.
   """
-  following: [User]
+  following: [User] @link
 
   """
   Users that this user is followed by.
   """
-  followers: [User]
+  followers: [User] @link
 }
 
-type Restaurant {
-  """
-  Post ID.
-  """
-  id: ID!
-
-  """
-  Post title.
-  """
-  name: String!
-
-  """
-  Post content.
-  """
-  description: String!
-
-  """
-  Post Author.
-  """
-  author: User!
-
-  # Post published timestamp.
-  # publishedAt: TODO: Define type.
-
-  """
-  Users who like this post.
-  """
-  likedBy: [User]
+type Restaurant @entity {
+  id: ID! @id
+  name: String! @column
+  description: String! @column
+  # author: User! @link
+  likedBy: [User] @link
 }
 
 type Query {
-  """
-  Get post by ID.
-  """
   restaurant(id: ID!): Restaurant
 }
 
@@ -85,11 +45,25 @@ input ShareRestaurantInput {
   description: String!
 }
 
+input CreateUserInput {
+  """
+  Restaurant title.
+  """
+  firstName: String!
+
+  """
+  Restaurant content.
+  """
+  lastName: String!
+}
+
 type Mutation {
   """
   Share post.
   """
   shareRestaurant(input: ShareRestaurantInput!): Restaurant!
+
+  createUser(input: CreateUserInput!): User!
 
   """
   Follow user.

@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
+import { GraphQLResolveInfo } from 'graphql';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
@@ -11,7 +11,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  Upload: any;
 };
 
 
@@ -22,16 +21,18 @@ export type Scalars = {
 
 
 
-
-export enum CacheControlScope {
-  Public = 'PUBLIC',
-  Private = 'PRIVATE'
-}
+export type CreateUserInput = {
+  /** Restaurant title. */
+  firstName: Scalars['String'];
+  /** Restaurant content. */
+  lastName: Scalars['String'];
+};
 
 export type Mutation = {
   __typename?: 'Mutation';
   /** Share post. */
   shareRestaurant: Restaurant;
+  createRestaurant: User;
   /**
    * Follow user.
    * Returns the updated number of followers.
@@ -55,6 +56,11 @@ export type MutationShareRestaurantArgs = {
 };
 
 
+export type MutationCreateRestaurantArgs = {
+  input: CreateUserInput;
+};
+
+
 export type MutationFollowUserArgs = {
   userId: Scalars['ID'];
 };
@@ -71,7 +77,6 @@ export type MutationLikeRestaurantArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  /** Get post by ID. */
   restaurant?: Maybe<Restaurant>;
 };
 
@@ -82,15 +87,9 @@ export type QueryRestaurantArgs = {
 
 export type Restaurant = {
   __typename?: 'Restaurant';
-  /** Post ID. */
   id: Scalars['ID'];
-  /** Post title. */
   name: Scalars['String'];
-  /** Post content. */
   description: Scalars['String'];
-  /** Post Author. */
-  author: User;
-  /** Users who like this post. */
   likedBy?: Maybe<Array<Maybe<User>>>;
 };
 
@@ -102,16 +101,11 @@ export type ShareRestaurantInput = {
   description: Scalars['String'];
 };
 
-
 export type User = {
   __typename?: 'User';
-  /** User ID. */
   id: Scalars['ID'];
-  /** User's first name. */
   firstName: Scalars['String'];
-  /** User's last name. */
   lastName: Scalars['String'];
-  /** Posts published by user. */
   restaurants?: Maybe<Array<Maybe<Restaurant>>>;
   /** Users that this user is following. */
   following?: Maybe<Array<Maybe<User>>>;
@@ -202,15 +196,14 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  CacheControlScope: CacheControlScope;
+  CreateUserInput: CreateUserInput;
+  String: ResolverTypeWrapper<Scalars['String']>;
   Mutation: ResolverTypeWrapper<{}>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Query: ResolverTypeWrapper<{}>;
   Restaurant: ResolverTypeWrapper<Restaurant>;
-  String: ResolverTypeWrapper<Scalars['String']>;
   ShareRestaurantInput: ShareRestaurantInput;
-  Upload: ResolverTypeWrapper<Scalars['Upload']>;
   User: ResolverTypeWrapper<User>;
   AdditionalEntityFields: AdditionalEntityFields;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
@@ -218,23 +211,18 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  CreateUserInput: CreateUserInput;
+  String: Scalars['String'];
   Mutation: {};
   Int: Scalars['Int'];
   ID: Scalars['ID'];
   Query: {};
   Restaurant: Restaurant;
-  String: Scalars['String'];
   ShareRestaurantInput: ShareRestaurantInput;
-  Upload: Scalars['Upload'];
   User: User;
   AdditionalEntityFields: AdditionalEntityFields;
   Boolean: Scalars['Boolean'];
 };
-
-export type CacheControlDirectiveArgs = {   maxAge?: Maybe<Scalars['Int']>;
-  scope?: Maybe<CacheControlScope>; };
-
-export type CacheControlDirectiveResolver<Result, Parent, ContextType = any, Args = CacheControlDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type UnionDirectiveArgs = {   discriminatorField?: Maybe<Scalars['String']>;
   additionalFields?: Maybe<Array<Maybe<AdditionalEntityFields>>>; };
@@ -273,6 +261,7 @@ export type MapDirectiveResolver<Result, Parent, ContextType = any, Args = MapDi
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   shareRestaurant?: Resolver<ResolversTypes['Restaurant'], ParentType, ContextType, RequireFields<MutationShareRestaurantArgs, 'input'>>;
+  createRestaurant?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationCreateRestaurantArgs, 'input'>>;
   followUser?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationFollowUserArgs, 'userId'>>;
   unfollowUser?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationUnfollowUserArgs, 'userId'>>;
   likeRestaurant?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationLikeRestaurantArgs, 'restaurantId'>>;
@@ -286,14 +275,9 @@ export type RestaurantResolvers<ContextType = any, ParentType extends ResolversP
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   likedBy?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
-
-export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Upload'], any> {
-  name: 'Upload';
-}
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -309,7 +293,6 @@ export type Resolvers<ContextType = any> = {
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Restaurant?: RestaurantResolvers<ContextType>;
-  Upload?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
 };
 
@@ -320,7 +303,6 @@ export type Resolvers<ContextType = any> = {
  */
 export type IResolvers<ContextType = any> = Resolvers<ContextType>;
 export type DirectiveResolvers<ContextType = any> = {
-  cacheControl?: CacheControlDirectiveResolver<any, any, ContextType>;
   union?: UnionDirectiveResolver<any, any, ContextType>;
   abstractEntity?: AbstractEntityDirectiveResolver<any, any, ContextType>;
   entity?: EntityDirectiveResolver<any, any, ContextType>;
@@ -338,3 +320,18 @@ export type DirectiveResolvers<ContextType = any> = {
  */
 export type IDirectiveResolvers<ContextType = any> = DirectiveResolvers<ContextType>;
 import { ObjectID } from 'mongodb';
+export type RestaurantDbObject = {
+  _id: ObjectID,
+  name: string,
+  description: string,
+  likedBy?: Maybe<Array<Maybe<UserDbObject['_id']>>>,
+};
+
+export type UserDbObject = {
+  _id: ObjectID,
+  firstName: string,
+  lastName: string,
+  restaurants?: Maybe<Array<Maybe<RestaurantDbObject['_id']>>>,
+  following?: Maybe<Array<Maybe<UserDbObject['_id']>>>,
+  followers?: Maybe<Array<Maybe<UserDbObject['_id']>>>,
+};
