@@ -7,17 +7,20 @@ export class MongoDbProvider {
   private mongoClient: MongoClient;
 
   constructor(url: string) {
-    this.mongoClient = new MongoClient(url, { useUnifiedTopology: true });
+    this.mongoClient = new MongoClient(url, {
+      useUnifiedTopology: true,
+      useNewUrlParser: true
+    });
   }
-  // 나중에 레스토랑으로 바꿔야함
-  get postsCollection(): Collection {
-    const postsCollection = this.getCollection('posts');
 
-    if (!postsCollection) {
-      throw new Error('Posts collection is undefined');
+  get restaurantsCollection(): Collection {
+    const restaurantsCollection = this.getCollection('restaurants');
+
+    if (!restaurantsCollection) {
+      throw new Error('Restaurants collection is undefined');
     }
 
-    return postsCollection;
+    return restaurantsCollection;
   }
 
   get usersCollection(): Collection {
@@ -69,22 +72,19 @@ export const mongoDbProvider = new MongoDbProvider(environment.mongoDb.url);
  * TODO: Remove in Production.
  */
 export async function addMockUsersAsync(): Promise<void> {
-  const usersCount = await mongoDbProvider.usersCollection.countDocuments();
+  const usersCount = await mongoDbProvider.restaurantsCollection.countDocuments();
 
   if (usersCount === 0) {
-    await mongoDbProvider.usersCollection.insertMany([
+    await mongoDbProvider.restaurantsCollection.insertMany([
       {
         _id: new ObjectID('0123456789abcdef01234567'),
-        firstName: 'Test',
-        lastName: 'User 1',
-        email: 'test.user1@test.com'
+        name: 'Test',
+        description: 'User 1'
       },
       {
         _id: new ObjectID('fedcba987654321098765432'),
-        firstName: 'Test',
-        lastName: 'User 2',
-        email: 'test.user2@test.com',
-        following: [new ObjectID('0123456789abcdef01234567')]
+        name: 'Test',
+        description: 'User 2'
       }
     ]);
   }

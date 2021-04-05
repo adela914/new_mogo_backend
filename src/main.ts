@@ -13,7 +13,7 @@ import resolvers from './resolvers';
     resolvers,
     typeDefs: [DIRECTIVES, typeDefs],
     introspection: environment.apollo.introspection,
-    mockEntireSchema: false, // TODO: Remove in PROD.
+    // mockEntireSchema: false, // TODO: Remove in PROD.
     // mocks: true, // TODO: Remove in PROD.
     playground: environment.apollo.playground
   });
@@ -25,9 +25,6 @@ import resolvers from './resolvers';
 
   if (module.hot) {
     module.hot.accept();
-    module.hot.dispose(async () => {
-      server.stop();
-      await mongoDbProvider.closeAsync();
-    });
+    module.hot.dispose(() => server.stop());
   }
 })();

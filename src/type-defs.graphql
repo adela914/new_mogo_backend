@@ -2,9 +2,7 @@ type User @entity {
   id: ID! @id
   firstName: String! @column
   lastName: String! @column
-
-  # User's e-mail address.
-  # email: TODO: Define type.
+  email: String @column
   restaurants: [Restaurant] @link
 
   """
@@ -21,13 +19,16 @@ type User @entity {
 type Restaurant @entity {
   id: ID! @id
   name: String! @column
+  author: User! @link
   description: String! @column
-  # author: User! @link
   likedBy: [User] @link
 }
 
 type Query {
   restaurant(id: ID!): Restaurant
+  user(id: ID!): User
+  users: [User]
+  restaurants: [Restaurant]
 }
 
 """
@@ -38,7 +39,6 @@ input ShareRestaurantInput {
   Restaurant title.
   """
   name: String!
-
   """
   Restaurant content.
   """
@@ -50,7 +50,6 @@ input CreateUserInput {
   Restaurant title.
   """
   firstName: String!
-
   """
   Restaurant content.
   """
@@ -59,12 +58,13 @@ input CreateUserInput {
 
 type Mutation {
   """
-  Share post.
+  Share restaurant.
   """
   shareRestaurant(input: ShareRestaurantInput!): Restaurant!
-
+  """
+  Create user.
+  """
   createUser(input: CreateUserInput!): User!
-
   """
   Follow user.
   Returns the updated number of followers.
