@@ -2,7 +2,8 @@ type User @entity {
   id: ID! @id
   firstName: String! @column
   lastName: String! @column
-  email: String @column
+  email: String! @column
+  password: String! @column
   restaurants: [Restaurant] @link
 
   """
@@ -45,7 +46,17 @@ input ShareRestaurantInput {
   description: String!
 }
 
-input CreateUserInput {
+input userRegisterInput {
+  email: String!
+  password: String!
+}
+
+input userLoginInput {
+  email: String!
+  password: String!
+}
+
+input CreateLoginInput {
   """
   Restaurant title.
   """
@@ -56,6 +67,18 @@ input CreateUserInput {
   lastName: String!
 }
 
+type userLoginOutput {
+  email: String!
+  password: String!
+  token: String!
+}
+
+type userRegisterOutput {
+  email: String!
+  password: String!
+  token: String!
+}
+
 type Mutation {
   """
   Share restaurant.
@@ -64,7 +87,10 @@ type Mutation {
   """
   Create user.
   """
-  createUser(input: CreateUserInput!): User!
+  register(input: userRegisterInput): userRegisterOutput!
+
+  login(input: userLoginInput): userLoginOutput!
+
   """
   Follow user.
   Returns the updated number of followers.

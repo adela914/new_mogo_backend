@@ -4,6 +4,7 @@ import { environment } from './environment';
 import { addMockUsersAsync, mongoDbProvider } from './mongodb.provider';
 import * as typeDefs from './type-defs.graphql';
 import resolvers from './resolvers';
+import { getPayload } from './util';
 
 (async function bootstrapAsync(): Promise<void> {
   await mongoDbProvider.connectAsync(environment.mongoDb.databaseName);
@@ -15,7 +16,16 @@ import resolvers from './resolvers';
     introspection: environment.apollo.introspection,
     // mockEntireSchema: false, // TODO: Remove in PROD.
     // mocks: true, // TODO: Remove in PROD.
-    playground: environment.apollo.playground
+    playground: environment.apollo.playground,
+    context: ({ req }) => {
+      // get the user token from the headers
+      const token = req.headers.authorization || '';
+      // try to retrieve a user with the token
+      const { payload: user, loggedIn } = getPayload(token);
+
+      // add the user to the context
+      return { user, loggedIn };
+    }
   });
 
   server

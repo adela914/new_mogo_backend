@@ -1,17 +1,22 @@
 import {
   UserDbObject,
-  CreateUserInput,
   ShareRestaurantInput,
   RestaurantDbObject,
   Restaurant,
   User,
-  QueryUserArgs
+  QueryUserArgs,
+  UserLoginInput,
+  UserLoginOutput
 } from './generated/graphql';
+import { getToken, encryptPassword, comparePassword } from './util';
 import { ObjectID } from 'mongodb';
 import { mongoDbProvider } from './mongodb.provider';
 
+import { AuthenticationError } from 'apollo-server';
+
 const mockCurrentUserId = '0123456789abcdef01234567';
 
+// add login/out features following these https://github.com/tharun267/apollo-server-jwt-auth/blob/master/src/resolvers/userResolvers.js
 export const resolvers = {
   Query: {
     restaurants: async (): Promise<RestaurantDbObject[]> => {
@@ -30,7 +35,6 @@ export const resolvers = {
       obj: User | UserDbObject,
       { id }: QueryUserArgs
     ): Promise<UserDbObject> => {
-      console.log(obj, id);
       const userId = new ObjectID(id);
       const result = await mongoDbProvider.usersCollection.findOne({
         _id: userId
@@ -39,6 +43,54 @@ export const resolvers = {
     }
   },
   Mutation: {
+    register: async (
+      parent,
+      { input }: { input: UserLoginInput }
+    ): Promise<UserLoginOutput> => {
+      console.log(parent, input);
+      const newUser = {
+        email: input.email,
+        password: await encryptPassword(input.password)
+      };
+      // Check conditions
+      const user = await mongoDbProvider.usersCollection.findOne({
+        email: input.email
+      });
+
+      if (user) {
+        throw new AuthenticationError('User Already Exists!');
+      }
+
+      const regUser = (await mongoDbProvider.usersCollection.insertOne(newUser))
+        .ops[0];
+      const token = getToken(regUser);
+      return { ...regUser, token };
+    },
+    login: async (
+      parent,
+      { input }: { input: UserLoginInput }
+    ): Promise<UserLoginOutput> => {
+      const user = await mongoDbProvider.usersCollection.findOne({
+        email: input.email
+      });
+      const isMatch = await comparePassword(input.password, user.password);
+      if (isMatch) {
+        const token = getToken(user);
+        return { ...user, token };
+      } else {
+        throw new AuthenticationError('Wrong Password!');
+      }
+    },
+    likeRestaurant: async (obj, id, context) => {
+      console.log(obj, id, context);
+      //   const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
+      //     {
+      //       _id: id
+      //     },
+      //     {}
+      //   );
+      return 2;
+    },
     shareRestaurant: async (
       obj: Restaurant | RestaurantDbObject,
       { input }: { input: ShareRestaurantInput }
@@ -46,22 +98,22 @@ export const resolvers = {
       const result = await mongoDbProvider.restaurantsCollection.insertOne({
         name: input.name,
         description: input.description,
-        author: new ObjectID(mockCurrentUserId)
+        author: new ObjectID(mockCurrentUserId) //should I add user's id from where?
       });
 
       return result.ops[0] as RestaurantDbObject;
-    },
-    createUser: async (
-      obj: User | UserDbObject,
-      { input }: { input: CreateUserInput }
-    ): Promise<UserDbObject> => {
-      const result = await mongoDbProvider.usersCollection.insertOne({
-        firstName: input.firstName,
-        lastName: input.lastName
-      });
-
-      return result.ops[0] as UserDbObject;
     }
+    //   createUser: async (
+    //     obj: User | UserDbObject,
+    //     { input }: { input: CreateUserInput }
+    //   ): Promise<UserDbObject> => {
+    //     const result = await mongoDbProvider.usersCollection.insertOne({
+    //       firstName: input.firstName,
+    //       lastName: input.lastName
+    //     });
+
+    //     return result.ops[0] as UserDbObject;
+    //   }
   },
   Restaurant: {
     id: (obj: Restaurant | RestaurantDbObject): string =>
