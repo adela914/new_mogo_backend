@@ -1,3 +1,4 @@
+import { User } from './generated/graphql';
 import jwt = require('jsonwebtoken');
 import bcrypt = require('bcryptjs');
 
@@ -45,10 +46,9 @@ export const getToken = (payload: string | Buffer): string => {
 
 export const getPayload = (
   token: string
-  // eslint-disable-next-line @typescript-eslint/ban-types
-): { loggedIn: boolean; payload?: string | object } => {
+): { loggedIn: boolean; payload?: User } => {
   try {
-    const payload = jwt.verify(token, secret);
+    const payload = jwt.verify(token, secret) as User | undefined;
     return { loggedIn: true, payload };
   } catch (err) {
     // Add Err Message

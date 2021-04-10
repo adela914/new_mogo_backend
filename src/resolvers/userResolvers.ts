@@ -1,30 +1,32 @@
 import {
   UserDbObject,
-  ShareRestaurantInput,
-  RestaurantDbObject,
   Restaurant,
   User,
   QueryUserArgs,
   UserLoginInput,
   UserLoginOutput
-} from './generated/graphql';
-import { getToken, encryptPassword, comparePassword } from './util';
+} from '../generated/graphql';
+import { getToken, encryptPassword, comparePassword } from '../util';
 import { ObjectID } from 'mongodb';
-import { mongoDbProvider } from './mongodb.provider';
+import { mongoDbProvider } from '../mongodb.provider';
 
 import { AuthenticationError } from 'apollo-server';
 
-const mockCurrentUserId = '0123456789abcdef01234567';
+// const mockCurrentUserId = '0123456789abcdef01234567';
 
 // add login/out features following these https://github.com/tharun267/apollo-server-jwt-auth/blob/master/src/resolvers/userResolvers.js
-export const resolvers = {
+const userResolvers = {
   Query: {
-    restaurants: async (): Promise<RestaurantDbObject[]> => {
-      const result = await mongoDbProvider.restaurantsCollection
-        .find()
-        .toArray();
-
-      return result;
+    currentUser: (
+      parent: User,
+      args: QueryUserArgs,
+      context: { user: User; loggedIn: boolean }
+    ): User => {
+      if (context.loggedIn) {
+        return context.user;
+      } else {
+        throw new AuthenticationError('Please Login Again!');
+      }
     },
     users: async (): Promise<UserDbObject[]> => {
       const result = await mongoDbProvider.usersCollection.find().toArray();
@@ -44,10 +46,9 @@ export const resolvers = {
   },
   Mutation: {
     register: async (
-      parent,
+      parent: User,
       { input }: { input: UserLoginInput }
     ): Promise<UserLoginOutput> => {
-      console.log(parent, input);
       const newUser = {
         email: input.email,
         password: await encryptPassword(input.password)
@@ -67,12 +68,13 @@ export const resolvers = {
       return { ...regUser, token };
     },
     login: async (
-      parent,
+      parent: User,
       { input }: { input: UserLoginInput }
     ): Promise<UserLoginOutput> => {
       const user = await mongoDbProvider.usersCollection.findOne({
         email: input.email
       });
+
       const isMatch = await comparePassword(input.password, user.password);
       if (isMatch) {
         const token = getToken(user);
@@ -80,28 +82,6 @@ export const resolvers = {
       } else {
         throw new AuthenticationError('Wrong Password!');
       }
-    },
-    likeRestaurant: async (obj, id, context) => {
-      console.log(obj, id, context);
-      //   const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
-      //     {
-      //       _id: id
-      //     },
-      //     {}
-      //   );
-      return 2;
-    },
-    shareRestaurant: async (
-      obj: Restaurant | RestaurantDbObject,
-      { input }: { input: ShareRestaurantInput }
-    ): Promise<RestaurantDbObject> => {
-      const result = await mongoDbProvider.restaurantsCollection.insertOne({
-        name: input.name,
-        description: input.description,
-        author: new ObjectID(mockCurrentUserId) //should I add user's id from where?
-      });
-
-      return result.ops[0] as RestaurantDbObject;
     }
     //   createUser: async (
     //     obj: User | UserDbObject,
@@ -114,20 +94,6 @@ export const resolvers = {
 
     //     return result.ops[0] as UserDbObject;
     //   }
-  },
-  Restaurant: {
-    id: (obj: Restaurant | RestaurantDbObject): string =>
-      (obj as RestaurantDbObject)._id
-        ? (obj as RestaurantDbObject)._id.toString()
-        : (obj as Restaurant).id,
-    author: async (
-      obj: Restaurant | RestaurantDbObject
-    ): Promise<User | UserDbObject> =>
-      obj.author instanceof ObjectID
-        ? (mongoDbProvider.usersCollection.findOne({
-            _id: obj.author
-          }) as Promise<UserDbObject>)
-        : obj.author
   },
   User: {
     id: (obj: User | UserDbObject): string =>
@@ -145,4 +111,4 @@ export const resolvers = {
   }
 };
 
-export default resolvers;
+export default userResolvers;

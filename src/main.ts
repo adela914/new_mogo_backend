@@ -3,7 +3,7 @@ import { DIRECTIVES } from '@graphql-codegen/typescript-mongodb';
 import { environment } from './environment';
 import { addMockUsersAsync, mongoDbProvider } from './mongodb.provider';
 import * as typeDefs from './type-defs.graphql';
-import resolvers from './resolvers';
+import resolvers from './resolvers/index';
 import { getPayload } from './util';
 
 (async function bootstrapAsync(): Promise<void> {

@@ -84,6 +84,7 @@ export type MutationLikeRestaurantArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  me?: Maybe<User>;
   restaurant?: Maybe<Restaurant>;
   user?: Maybe<User>;
   users?: Maybe<Array<Maybe<User>>>;
@@ -120,8 +121,8 @@ export type ShareRestaurantInput = {
 export type User = {
   __typename?: 'User';
   id: Scalars['ID'];
-  firstName: Scalars['String'];
-  lastName: Scalars['String'];
+  firstName?: Maybe<Scalars['String']>;
+  lastName?: Maybe<Scalars['String']>;
   email: Scalars['String'];
   password: Scalars['String'];
   restaurants?: Maybe<Array<Maybe<Restaurant>>>;
@@ -319,6 +320,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   restaurant?: Resolver<Maybe<ResolversTypes['Restaurant']>, ParentType, ContextType, RequireFields<QueryRestaurantArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
   users?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
@@ -336,8 +338,8 @@ export type RestaurantResolvers<ContextType = any, ParentType extends ResolversP
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  firstName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   restaurants?: Resolver<Maybe<Array<Maybe<ResolversTypes['Restaurant']>>>, ParentType, ContextType>;
@@ -403,8 +405,8 @@ export type RestaurantDbObject = {
 
 export type UserDbObject = {
   _id: ObjectID,
-  firstName: string,
-  lastName: string,
+  firstName?: Maybe<string>,
+  lastName?: Maybe<string>,
   email: string,
   password: string,
   restaurants?: Maybe<Array<Maybe<RestaurantDbObject['_id']>>>,

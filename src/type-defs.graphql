@@ -1,7 +1,7 @@
 type User @entity {
   id: ID! @id
-  firstName: String! @column
-  lastName: String! @column
+  firstName: String @column
+  lastName: String @column
   email: String! @column
   password: String! @column
   restaurants: [Restaurant] @link
@@ -26,6 +26,7 @@ type Restaurant @entity {
 }
 
 type Query {
+  currentUser: User
   restaurant(id: ID!): Restaurant
   user(id: ID!): User
   users: [User]
