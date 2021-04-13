@@ -39,8 +39,8 @@ const restaurantResolvers = {
       //       _id: id
       //     },
       //     {}
-      //   );
-      return 2;
+      //   );///
+      return 5;
     },
     shareRestaurant: async (
       obj: Restaurant | RestaurantDbObject,

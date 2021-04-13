@@ -84,7 +84,7 @@ export type MutationLikeRestaurantArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  me?: Maybe<User>;
+  currentUser?: Maybe<User>;
   restaurant?: Maybe<Restaurant>;
   user?: Maybe<User>;
   users?: Maybe<Array<Maybe<User>>>;
@@ -320,7 +320,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  currentUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   restaurant?: Resolver<Maybe<ResolversTypes['Restaurant']>, ParentType, ContextType, RequireFields<QueryRestaurantArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
   users?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
