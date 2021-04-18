@@ -23,6 +23,7 @@ type Restaurant @entity {
   author: User! @link
   description: String! @column
   likedBy: [User] @link
+  likes: Int
 }
 
 type Query {
@@ -80,6 +81,10 @@ type userRegisterOutput {
   token: String!
 }
 
+type likeResOutput {
+  likes: Int!
+}
+
 type Mutation {
   """
   Share restaurant.
@@ -123,5 +128,5 @@ type Mutation {
     Post's ID to like.
     """
     restaurantId: ID!
-  ): Int!
+  ): likeResOutput!
 }

@@ -33,14 +33,20 @@ const restaurantResolvers = {
     }
   },
   Mutation: {
-    likeRestaurant: async (obj, id, context) => {
-        const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
-          {
-            _id: id
-          },
-          {$set: {likes: 3}}
-        );///
-      return result;
+    likeRestaurant: async (obj, id) => {
+      const foundRes = await mongoDbProvider.restaurantsCollection.findOne({
+        _id: new ObjectID(id.restaurantId)
+      });
+
+      const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
+        {
+          _id: new ObjectID(id.restaurantId)
+        },
+        { $set: { likes: foundRes.likes + 1 } },
+        { returnOriginal: false, upsert: true }
+      );
+
+      return result.value;
     },
     shareRestaurant: async (
       obj: Restaurant | RestaurantDbObject,

@@ -49,7 +49,7 @@ export type Mutation = {
    * Like post.
    * Returns the updated number of likes received.
    */
-  likeRestaurant: Scalars['Int'];
+  likeRestaurant: LikeResOutput;
 };
 
 
@@ -108,6 +108,7 @@ export type Restaurant = {
   author: User;
   description: Scalars['String'];
   likedBy?: Maybe<Array<Maybe<User>>>;
+  likes?: Maybe<Scalars['Int']>;
 };
 
 /** Publish post input. */
@@ -130,6 +131,11 @@ export type User = {
   following?: Maybe<Array<Maybe<User>>>;
   /** Users that this user is followed by. */
   followers?: Maybe<Array<Maybe<User>>>;
+};
+
+export type LikeResOutput = {
+  __typename?: 'likeResOutput';
+  likes: Scalars['Int'];
 };
 
 export type UserLoginInput = {
@@ -248,6 +254,7 @@ export type ResolversTypes = {
   Restaurant: ResolverTypeWrapper<Restaurant>;
   ShareRestaurantInput: ShareRestaurantInput;
   User: ResolverTypeWrapper<User>;
+  likeResOutput: ResolverTypeWrapper<LikeResOutput>;
   userLoginInput: UserLoginInput;
   userLoginOutput: ResolverTypeWrapper<UserLoginOutput>;
   userRegisterInput: UserRegisterInput;
@@ -267,6 +274,7 @@ export type ResolversParentTypes = {
   Restaurant: Restaurant;
   ShareRestaurantInput: ShareRestaurantInput;
   User: User;
+  likeResOutput: LikeResOutput;
   userLoginInput: UserLoginInput;
   userLoginOutput: UserLoginOutput;
   userRegisterInput: UserRegisterInput;
@@ -316,7 +324,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   login?: Resolver<ResolversTypes['userLoginOutput'], ParentType, ContextType, RequireFields<MutationLoginArgs, never>>;
   followUser?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationFollowUserArgs, 'userId'>>;
   unfollowUser?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationUnfollowUserArgs, 'userId'>>;
-  likeRestaurant?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationLikeRestaurantArgs, 'restaurantId'>>;
+  likeRestaurant?: Resolver<ResolversTypes['likeResOutput'], ParentType, ContextType, RequireFields<MutationLikeRestaurantArgs, 'restaurantId'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
@@ -333,6 +341,7 @@ export type RestaurantResolvers<ContextType = any, ParentType extends ResolversP
   author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   likedBy?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
+  likes?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -345,6 +354,11 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   restaurants?: Resolver<Maybe<Array<Maybe<ResolversTypes['Restaurant']>>>, ParentType, ContextType>;
   following?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
   followers?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type LikeResOutputResolvers<ContextType = any, ParentType extends ResolversParentTypes['likeResOutput'] = ResolversParentTypes['likeResOutput']> = {
+  likes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -367,6 +381,7 @@ export type Resolvers<ContextType = any> = {
   Query?: QueryResolvers<ContextType>;
   Restaurant?: RestaurantResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  likeResOutput?: LikeResOutputResolvers<ContextType>;
   userLoginOutput?: UserLoginOutputResolvers<ContextType>;
   userRegisterOutput?: UserRegisterOutputResolvers<ContextType>;
 };
