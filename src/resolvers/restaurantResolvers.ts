@@ -34,6 +34,8 @@ const restaurantResolvers = {
   },
   Mutation: {
     likeRestaurant: async (obj, { restaurantId }) => {
+      //TODO: add auth
+
       const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
         {
           _id: new ObjectID(restaurantId)
@@ -45,6 +47,8 @@ const restaurantResolvers = {
       return result.value;
     },
     updateRestaurant: async (obj, { input }) => {
+      //TODO: add auth
+
       const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
         {
           _id: new ObjectID(input.id)
@@ -65,6 +69,7 @@ const restaurantResolvers = {
       obj: Restaurant | RestaurantDbObject,
       { input }: { input: ShareRestaurantInput }
     ): Promise<RestaurantDbObject> => {
+      //TODO: add auth
       const result = await mongoDbProvider.restaurantsCollection.insertOne({
         name: input.name,
         description: input.description,
