@@ -33,16 +33,29 @@ const restaurantResolvers = {
     }
   },
   Mutation: {
-    likeRestaurant: async (obj, id) => {
-      const foundRes = await mongoDbProvider.restaurantsCollection.findOne({
-        _id: new ObjectID(id.restaurantId)
-      });
-
+    likeRestaurant: async (obj, { restaurantId }) => {
       const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
         {
-          _id: new ObjectID(id.restaurantId)
+          _id: new ObjectID(restaurantId)
         },
-        { $set: { likes: foundRes.likes + 1 } },
+        { $inc: { likes: 1 } },
+        { returnOriginal: false, upsert: true }
+      );
+
+      return result.value;
+    },
+    updateRestaurant: async (obj, { input }) => {
+      const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
+        {
+          _id: new ObjectID(input.id)
+        },
+        {
+          $set: {
+            name: input.name,
+            description: input.description,
+            location: input.location
+          }
+        },
         { returnOriginal: false, upsert: true }
       );
 
@@ -56,6 +69,7 @@ const restaurantResolvers = {
         name: input.name,
         description: input.description,
         likes: 0,
+        location: input.location,
         author: new ObjectID(mockCurrentUserId) //should I add user's id from where?
       });
 

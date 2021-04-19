@@ -28,10 +28,23 @@ export type CreateLoginInput = {
   lastName: Scalars['String'];
 };
 
+export type CurrentUserOutput = {
+  __typename?: 'CurrentUserOutput';
+  id: Scalars['ID'];
+  firstName?: Maybe<Scalars['String']>;
+  lastName?: Maybe<Scalars['String']>;
+  email: Scalars['String'];
+  restaurants?: Maybe<Array<Maybe<Restaurant>>>;
+  following?: Maybe<Array<Maybe<User>>>;
+  followers?: Maybe<Array<Maybe<User>>>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   /** Share restaurant. */
   shareRestaurant: Restaurant;
+  /** Update restaurant. */
+  updateRestaurant: Restaurant;
   /** Create user. */
   register: UserRegisterOutput;
   login: UserLoginOutput;
@@ -55,6 +68,11 @@ export type Mutation = {
 
 export type MutationShareRestaurantArgs = {
   input: ShareRestaurantInput;
+};
+
+
+export type MutationUpdateRestaurantArgs = {
+  input: UpdateRestaurantInput;
 };
 
 
@@ -84,7 +102,7 @@ export type MutationLikeRestaurantArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  currentUser?: Maybe<User>;
+  currentUser?: Maybe<CurrentUserOutput>;
   restaurant?: Maybe<Restaurant>;
   user?: Maybe<User>;
   users?: Maybe<Array<Maybe<User>>>;
@@ -107,6 +125,7 @@ export type Restaurant = {
   name: Scalars['String'];
   author: User;
   description: Scalars['String'];
+  location?: Maybe<Scalars['String']>;
   likedBy?: Maybe<Array<Maybe<User>>>;
   likes?: Maybe<Scalars['Int']>;
 };
@@ -117,6 +136,14 @@ export type ShareRestaurantInput = {
   name: Scalars['String'];
   /** Restaurant content. */
   description: Scalars['String'];
+  location?: Maybe<Scalars['String']>;
+};
+
+export type UpdateRestaurantInput = {
+  id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  location?: Maybe<Scalars['String']>;
 };
 
 export type User = {
@@ -247,12 +274,14 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   CreateLoginInput: CreateLoginInput;
   String: ResolverTypeWrapper<Scalars['String']>;
+  CurrentUserOutput: ResolverTypeWrapper<CurrentUserOutput>;
+  ID: ResolverTypeWrapper<Scalars['ID']>;
   Mutation: ResolverTypeWrapper<{}>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
-  ID: ResolverTypeWrapper<Scalars['ID']>;
   Query: ResolverTypeWrapper<{}>;
   Restaurant: ResolverTypeWrapper<Restaurant>;
   ShareRestaurantInput: ShareRestaurantInput;
+  UpdateRestaurantInput: UpdateRestaurantInput;
   User: ResolverTypeWrapper<User>;
   likeResOutput: ResolverTypeWrapper<LikeResOutput>;
   userLoginInput: UserLoginInput;
@@ -267,12 +296,14 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   CreateLoginInput: CreateLoginInput;
   String: Scalars['String'];
+  CurrentUserOutput: CurrentUserOutput;
+  ID: Scalars['ID'];
   Mutation: {};
   Int: Scalars['Int'];
-  ID: Scalars['ID'];
   Query: {};
   Restaurant: Restaurant;
   ShareRestaurantInput: ShareRestaurantInput;
+  UpdateRestaurantInput: UpdateRestaurantInput;
   User: User;
   likeResOutput: LikeResOutput;
   userLoginInput: UserLoginInput;
@@ -318,8 +349,20 @@ export type MapDirectiveArgs = {   path: Scalars['String']; };
 
 export type MapDirectiveResolver<Result, Parent, ContextType = any, Args = MapDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
+export type CurrentUserOutputResolvers<ContextType = any, ParentType extends ResolversParentTypes['CurrentUserOutput'] = ResolversParentTypes['CurrentUserOutput']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  restaurants?: Resolver<Maybe<Array<Maybe<ResolversTypes['Restaurant']>>>, ParentType, ContextType>;
+  following?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
+  followers?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   shareRestaurant?: Resolver<ResolversTypes['Restaurant'], ParentType, ContextType, RequireFields<MutationShareRestaurantArgs, 'input'>>;
+  updateRestaurant?: Resolver<ResolversTypes['Restaurant'], ParentType, ContextType, RequireFields<MutationUpdateRestaurantArgs, 'input'>>;
   register?: Resolver<ResolversTypes['userRegisterOutput'], ParentType, ContextType, RequireFields<MutationRegisterArgs, never>>;
   login?: Resolver<ResolversTypes['userLoginOutput'], ParentType, ContextType, RequireFields<MutationLoginArgs, never>>;
   followUser?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationFollowUserArgs, 'userId'>>;
@@ -328,7 +371,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  currentUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  currentUser?: Resolver<Maybe<ResolversTypes['CurrentUserOutput']>, ParentType, ContextType>;
   restaurant?: Resolver<Maybe<ResolversTypes['Restaurant']>, ParentType, ContextType, RequireFields<QueryRestaurantArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
   users?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
@@ -340,6 +383,7 @@ export type RestaurantResolvers<ContextType = any, ParentType extends ResolversP
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   likedBy?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
   likes?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -377,6 +421,7 @@ export type UserRegisterOutputResolvers<ContextType = any, ParentType extends Re
 };
 
 export type Resolvers<ContextType = any> = {
+  CurrentUserOutput?: CurrentUserOutputResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Restaurant?: RestaurantResolvers<ContextType>;

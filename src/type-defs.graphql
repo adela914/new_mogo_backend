@@ -22,16 +22,27 @@ type Restaurant @entity {
   name: String! @column
   author: User! @link
   description: String! @column
+  location: String
   likedBy: [User] @link
   likes: Int
 }
 
 type Query {
-  currentUser: User
+  currentUser: CurrentUserOutput
   restaurant(id: ID!): Restaurant
   user(id: ID!): User
   users: [User]
   restaurants: [Restaurant]
+}
+
+type CurrentUserOutput {
+  id: ID! @id
+  firstName: String @column
+  lastName: String @column
+  email: String! @column
+  restaurants: [Restaurant] @link
+  following: [User] @link
+  followers: [User] @link
 }
 
 """
@@ -46,6 +57,14 @@ input ShareRestaurantInput {
   Restaurant content.
   """
   description: String!
+  location: String
+}
+
+input UpdateRestaurantInput {
+  id: ID!
+  name: String
+  description: String
+  location: String
 }
 
 input userRegisterInput {
@@ -90,6 +109,11 @@ type Mutation {
   Share restaurant.
   """
   shareRestaurant(input: ShareRestaurantInput!): Restaurant!
+
+  """
+  Update restaurant.
+  """
+  updateRestaurant(input: UpdateRestaurantInput!): Restaurant!
   """
   Create user.
   """
