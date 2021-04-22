@@ -1,3 +1,4 @@
+import { UpdateRestaurantInput } from './../generated/graphql';
 import {
   UserDbObject,
   ShareRestaurantInput,
@@ -33,21 +34,27 @@ const restaurantResolvers = {
     }
   },
   Mutation: {
-    likeRestaurant: async (obj, { restaurantId }) => {
-      //TODO: add auth
-
+    likeRestaurant: async (
+      obj: Restaurant | RestaurantDbObject,
+      { restaurantId }: { restaurantId: string },
+      { loggedIn }: { loggedIn: boolean }
+    ): Promise<RestaurantDbObject> => {
+      if (!loggedIn) return;
       const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
         {
           _id: new ObjectID(restaurantId)
         },
         { $inc: { likes: 1 } },
-        { returnOriginal: false, upsert: true }
+        { returnOriginal: false, upsert: false } // upsert false to prevent creating doc when non existing res
       );
 
       return result.value;
     },
-    updateRestaurant: async (obj, { input }) => {
-      //TODO: add auth
+    updateRestaurant: async (
+      obj: Restaurant | RestaurantDbObject,
+      { input }: { input: UpdateRestaurantInput }
+    ): Promise<RestaurantDbObject> => {
+      //TODO: add auth, only user who shared the res can update it.
 
       const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
         {
@@ -67,15 +74,17 @@ const restaurantResolvers = {
     },
     shareRestaurant: async (
       obj: Restaurant | RestaurantDbObject,
-      { input }: { input: ShareRestaurantInput }
+      { input }: { input: ShareRestaurantInput },
+      { loggedIn }: { loggedIn: boolean }
     ): Promise<RestaurantDbObject> => {
-      //TODO: add auth
+      if (!loggedIn) return;
+
       const result = await mongoDbProvider.restaurantsCollection.insertOne({
         name: input.name,
         description: input.description,
         likes: 0,
         location: input.location,
-        author: new ObjectID(mockCurrentUserId) //should I add user's id from where?
+        author: new ObjectID(mockCurrentUserId) //TODO: should I add user's id from where?
       });
 
       return result.ops[0] as RestaurantDbObject;
