@@ -1,4 +1,4 @@
-import { User } from './generated/graphql';
+import { UserDbObject } from './generated/graphql';
 import jwt = require('jsonwebtoken');
 import bcrypt = require('bcryptjs');
 
@@ -46,9 +46,9 @@ export const getToken = (payload: string | Buffer): string => {
 
 export const getPayload = (
   token: string
-): { loggedIn: boolean; payload?: User } => {
+): { loggedIn: boolean; payload?: UserDbObject } => {
   try {
-    const payload = jwt.verify(token, secret) as User | undefined;
+    const payload = jwt.verify(token, secret) as UserDbObject;
     return { loggedIn: true, payload };
   } catch (err) {
     // Add Err Message

@@ -1,3 +1,4 @@
+import { UserDbObject } from './generated/graphql';
 import { ApolloServer } from 'apollo-server';
 import { DIRECTIVES } from '@graphql-codegen/typescript-mongodb';
 import { environment } from './environment';
@@ -17,7 +18,7 @@ import { getPayload } from './util';
     // mockEntireSchema: false, // TODO: Remove in PROD.
     // mocks: true, // TODO: Remove in PROD.
     playground: environment.apollo.playground,
-    context: ({ req }) => {
+    context: ({ req }): { user: UserDbObject; loggedIn: boolean } => {
       // get the user token from the headers
       const token = req.headers.authorization || '';
       // try to retrieve a user with the token

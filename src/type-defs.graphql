@@ -28,22 +28,22 @@ type Restaurant @entity {
 }
 
 type Query {
-  currentUser: CurrentUserOutput
+  currentUser: User
   restaurant(id: ID!): Restaurant
   user(id: ID!): User
   users: [User]
   restaurants: [Restaurant]
 }
 
-type CurrentUserOutput {
-  id: ID! @id
-  firstName: String @column
-  lastName: String @column
-  email: String! @column
-  restaurants: [Restaurant] @link
-  following: [User] @link
-  followers: [User] @link
-}
+# type CurrentUserOutput {
+#   id: ID! @id
+#   firstName: String @column
+#   lastName: String @column
+#   email: String! @column
+#   restaurants: [Restaurant] @link
+#   following: [User] @link
+#   followers: [User] @link
+# }
 
 """
 Publish post input.

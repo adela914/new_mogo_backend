@@ -9,21 +9,21 @@ import {
 import { getToken, encryptPassword, comparePassword } from '../util';
 import { ObjectID } from 'mongodb';
 import { mongoDbProvider } from '../mongodb.provider';
-
 import { AuthenticationError } from 'apollo-server';
 
-// const mockCurrentUserId = '0123456789abcdef01234567';
-
-// add login/out features following these https://github.com/tharun267/apollo-server-jwt-auth/blob/master/src/resolvers/userResolvers.js
 const userResolvers = {
   Query: {
-    currentUser: (
+    currentUser: async (
       parent: User,
       args: QueryUserArgs,
-      context: { user: User; loggedIn: boolean }
-    ): User => {
+      context: { user: UserDbObject; loggedIn: boolean }
+    ): Promise<UserDbObject> => {
       if (context.loggedIn) {
-        return context.user;
+        const userId = new ObjectID(context.user._id);
+        const result = await mongoDbProvider.usersCollection.findOne({
+          _id: userId
+        });
+        return result;
       } else {
         throw new AuthenticationError('Please Login Again!');
       }
@@ -53,7 +53,7 @@ const userResolvers = {
         email: input.email,
         password: await encryptPassword(input.password)
       };
-      // Check conditions
+      //TODO: Check conditions
       const user = await mongoDbProvider.usersCollection.findOne({
         email: input.email
       });
@@ -83,23 +83,14 @@ const userResolvers = {
         throw new AuthenticationError('Wrong Password!');
       }
     }
-    //   createUser: async (
-    //     obj: User | UserDbObject,
-    //     { input }: { input: CreateUserInput }
-    //   ): Promise<UserDbObject> => {
-    //     const result = await mongoDbProvider.usersCollection.insertOne({
-    //       firstName: input.firstName,
-    //       lastName: input.lastName
-    //     });
-
-    //     return result.ops[0] as UserDbObject;
-    //   }
   },
+  // when Graphql schema is User
   User: {
-    id: (obj: User | UserDbObject): string =>
-      (obj as UserDbObject)._id
+    id: (obj: User | UserDbObject): string => {
+      return (obj as UserDbObject)._id
         ? (obj as UserDbObject)._id.toString()
-        : (obj as User).id,
+        : (obj as User).id;
+    },
     restaurants: (obj: User | UserDbObject): Promise<Restaurant[]> =>
       mongoDbProvider.restaurantsCollection
         .find({

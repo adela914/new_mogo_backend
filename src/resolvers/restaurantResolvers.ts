@@ -9,10 +9,8 @@ import {
 } from '../generated/graphql';
 import { ObjectID } from 'mongodb';
 import { mongoDbProvider } from '../mongodb.provider';
+import { AuthenticationError } from 'apollo-server';
 
-const mockCurrentUserId = '0123456789abcdef01234567';
-
-// add login/out features following these https://github.com/tharun267/apollo-server-jwt-auth/blob/master/src/resolvers/userResolvers.js
 const restaurantResolvers = {
   Query: {
     restaurants: async (): Promise<RestaurantDbObject[]> => {
@@ -30,6 +28,7 @@ const restaurantResolvers = {
       const result = await mongoDbProvider.restaurantsCollection.findOne({
         _id: resId
       });
+      console.log(result);
       return result;
     }
   },
@@ -37,15 +36,19 @@ const restaurantResolvers = {
     likeRestaurant: async (
       obj: Restaurant | RestaurantDbObject,
       { restaurantId }: { restaurantId: string },
-      { loggedIn }: { loggedIn: boolean }
+      { loggedIn }: { user: UserDbObject; loggedIn: boolean }
     ): Promise<RestaurantDbObject> => {
+      //TODO: add relationship with user
       if (!loggedIn) return;
       const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
         {
           _id: new ObjectID(restaurantId)
         },
         { $inc: { likes: 1 } },
-        { returnOriginal: false, upsert: false } // upsert false to prevent creating doc when non existing res
+        {
+          returnOriginal: false,
+          upsert: false
+        } /* upsert false to prevent creating doc when non existing res */
       );
 
       return result.value;
@@ -75,16 +78,16 @@ const restaurantResolvers = {
     shareRestaurant: async (
       obj: Restaurant | RestaurantDbObject,
       { input }: { input: ShareRestaurantInput },
-      { loggedIn }: { loggedIn: boolean }
+      { loggedIn, user }: { user: UserDbObject; loggedIn: boolean }
     ): Promise<RestaurantDbObject> => {
-      if (!loggedIn) return;
+      if (!loggedIn) throw new AuthenticationError('Please Login First!🙅🏻‍♀️');
 
       const result = await mongoDbProvider.restaurantsCollection.insertOne({
         name: input.name,
         description: input.description,
         likes: 0,
         location: input.location,
-        author: new ObjectID(mockCurrentUserId) //TODO: should I add user's id from where?
+        author: new ObjectID(user._id)
       });
 
       return result.ops[0] as RestaurantDbObject;
@@ -97,12 +100,13 @@ const restaurantResolvers = {
         : (obj as Restaurant).id,
     author: async (
       obj: Restaurant | RestaurantDbObject
-    ): Promise<User | UserDbObject> =>
-      obj.author instanceof ObjectID
-        ? (mongoDbProvider.usersCollection.findOne({
-            _id: obj.author
-          }) as Promise<UserDbObject>)
-        : obj.author
+    ): Promise<User | UserDbObject> => {
+      return obj.author instanceof ObjectID
+        ? ((await mongoDbProvider.usersCollection.findOne({
+            _id: new ObjectID(obj.author)
+          })) as Promise<UserDbObject>)
+        : obj.author;
+    }
   }
 };
 
