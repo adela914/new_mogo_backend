@@ -1,11 +1,11 @@
-import { UpdateRestaurantInput } from './../generated/graphql';
 import {
   UserDbObject,
   ShareRestaurantInput,
   RestaurantDbObject,
   Restaurant,
   User,
-  QueryRestaurantArgs
+  QueryRestaurantArgs,
+  UpdateRestaurantInput
 } from '../generated/graphql';
 import { ObjectID } from 'mongodb';
 import { mongoDbProvider } from '../mongodb.provider';
@@ -17,7 +17,6 @@ const restaurantResolvers = {
       const result = await mongoDbProvider.restaurantsCollection
         .find()
         .toArray();
-
       return result;
     },
     restaurant: async (
@@ -28,7 +27,6 @@ const restaurantResolvers = {
       const result = await mongoDbProvider.restaurantsCollection.findOne({
         _id: resId
       });
-      console.log(result);
       return result;
     }
   },
@@ -38,7 +36,6 @@ const restaurantResolvers = {
       { restaurantId }: { restaurantId: string },
       { loggedIn }: { user: UserDbObject; loggedIn: boolean }
     ): Promise<RestaurantDbObject> => {
-      //TODO: add relationship with user
       if (!loggedIn) return;
       const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
         {
@@ -55,25 +52,32 @@ const restaurantResolvers = {
     },
     updateRestaurant: async (
       obj: Restaurant | RestaurantDbObject,
-      { input }: { input: UpdateRestaurantInput }
+      { input }: { input: UpdateRestaurantInput },
+      { user }: { user: UserDbObject }
     ): Promise<RestaurantDbObject> => {
-      //TODO: add auth, only user who shared the res can update it.
+      const resId = new ObjectID(input.id);
+      const { author } = await mongoDbProvider.restaurantsCollection.findOne({
+        _id: resId
+      });
 
-      const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
-        {
-          _id: new ObjectID(input.id)
-        },
-        {
-          $set: {
-            name: input.name,
-            description: input.description,
-            location: input.location
-          }
-        },
-        { returnOriginal: false, upsert: true }
-      );
-
-      return result.value;
+      if (author === user._id) {
+        const result = await mongoDbProvider.restaurantsCollection.findOneAndUpdate(
+          {
+            _id: new ObjectID(input.id)
+          },
+          {
+            $set: {
+              name: input.name,
+              description: input.description,
+              location: input.location
+            }
+          },
+          { returnOriginal: false, upsert: true }
+        );
+        return result.value;
+      } else {
+        throw new AuthenticationError('Only author can update it!');
+      }
     },
     shareRestaurant: async (
       obj: Restaurant | RestaurantDbObject,
@@ -84,8 +88,7 @@ const restaurantResolvers = {
 
       const result = await mongoDbProvider.restaurantsCollection.insertOne({
         name: input.name,
-        description: input.description,
-        likes: 0,
+        description: input.description, // can removed if it's optional
         location: input.location,
         author: new ObjectID(user._id)
       });

@@ -49,10 +49,6 @@ const userResolvers = {
       parent: User,
       { input }: { input: UserLoginInput }
     ): Promise<UserLoginOutput> => {
-      const newUser = {
-        email: input.email,
-        password: await encryptPassword(input.password)
-      };
       //TODO: Check conditions
       const user = await mongoDbProvider.usersCollection.findOne({
         email: input.email
@@ -61,6 +57,11 @@ const userResolvers = {
       if (user) {
         throw new AuthenticationError('User Already Exists!');
       }
+
+      const newUser = {
+        email: input.email,
+        password: await encryptPassword(input.password)
+      };
 
       const regUser = (await mongoDbProvider.usersCollection.insertOne(newUser))
         .ops[0];

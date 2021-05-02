@@ -28,17 +28,6 @@ export type CreateLoginInput = {
   lastName: Scalars['String'];
 };
 
-export type CurrentUserOutput = {
-  __typename?: 'CurrentUserOutput';
-  id: Scalars['ID'];
-  firstName?: Maybe<Scalars['String']>;
-  lastName?: Maybe<Scalars['String']>;
-  email: Scalars['String'];
-  restaurants?: Maybe<Array<Maybe<Restaurant>>>;
-  following?: Maybe<Array<Maybe<User>>>;
-  followers?: Maybe<Array<Maybe<User>>>;
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   /** Share restaurant. */
@@ -102,7 +91,7 @@ export type MutationLikeRestaurantArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  currentUser?: Maybe<CurrentUserOutput>;
+  currentUser?: Maybe<User>;
   restaurant?: Maybe<Restaurant>;
   user?: Maybe<User>;
   users?: Maybe<Array<Maybe<User>>>;
@@ -274,10 +263,9 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   CreateLoginInput: CreateLoginInput;
   String: ResolverTypeWrapper<Scalars['String']>;
-  CurrentUserOutput: ResolverTypeWrapper<CurrentUserOutput>;
-  ID: ResolverTypeWrapper<Scalars['ID']>;
   Mutation: ResolverTypeWrapper<{}>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  ID: ResolverTypeWrapper<Scalars['ID']>;
   Query: ResolverTypeWrapper<{}>;
   Restaurant: ResolverTypeWrapper<Restaurant>;
   ShareRestaurantInput: ShareRestaurantInput;
@@ -296,10 +284,9 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   CreateLoginInput: CreateLoginInput;
   String: Scalars['String'];
-  CurrentUserOutput: CurrentUserOutput;
-  ID: Scalars['ID'];
   Mutation: {};
   Int: Scalars['Int'];
+  ID: Scalars['ID'];
   Query: {};
   Restaurant: Restaurant;
   ShareRestaurantInput: ShareRestaurantInput;
@@ -349,17 +336,6 @@ export type MapDirectiveArgs = {   path: Scalars['String']; };
 
 export type MapDirectiveResolver<Result, Parent, ContextType = any, Args = MapDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type CurrentUserOutputResolvers<ContextType = any, ParentType extends ResolversParentTypes['CurrentUserOutput'] = ResolversParentTypes['CurrentUserOutput']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  restaurants?: Resolver<Maybe<Array<Maybe<ResolversTypes['Restaurant']>>>, ParentType, ContextType>;
-  following?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
-  followers?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   shareRestaurant?: Resolver<ResolversTypes['Restaurant'], ParentType, ContextType, RequireFields<MutationShareRestaurantArgs, 'input'>>;
   updateRestaurant?: Resolver<ResolversTypes['Restaurant'], ParentType, ContextType, RequireFields<MutationUpdateRestaurantArgs, 'input'>>;
@@ -371,7 +347,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  currentUser?: Resolver<Maybe<ResolversTypes['CurrentUserOutput']>, ParentType, ContextType>;
+  currentUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   restaurant?: Resolver<Maybe<ResolversTypes['Restaurant']>, ParentType, ContextType, RequireFields<QueryRestaurantArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
   users?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
@@ -421,7 +397,6 @@ export type UserRegisterOutputResolvers<ContextType = any, ParentType extends Re
 };
 
 export type Resolvers<ContextType = any> = {
-  CurrentUserOutput?: CurrentUserOutputResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Restaurant?: RestaurantResolvers<ContextType>;

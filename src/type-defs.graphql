@@ -21,7 +21,7 @@ type Restaurant @entity {
   id: ID! @id
   name: String! @column
   author: User! @link
-  description: String! @column
+  description: String @column
   location: String
   likedBy: [User] @link
   likes: Int
