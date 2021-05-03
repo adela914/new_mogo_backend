@@ -16,10 +16,10 @@ const userResolvers = {
     currentUser: async (
       parent: User,
       args: QueryUserArgs,
-      context: { user: UserDbObject; loggedIn: boolean }
+      { loggedIn, user }: { user: UserDbObject; loggedIn: boolean }
     ): Promise<UserDbObject> => {
-      if (context.loggedIn) {
-        const userId = new ObjectID(context.user._id);
+      if (loggedIn) {
+        const userId = new ObjectID(user._id);
         const result = await mongoDbProvider.usersCollection.findOne({
           _id: userId
         });
