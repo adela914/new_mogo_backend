@@ -14,14 +14,15 @@ interface Environment {
 
 export const environment: Environment = {
   apollo: {
-    introspection: process.env.APOLLO_INTROSPECTION === 'true',
-    playground: process.env.APOLLO_PLAYGROUND === 'true'
+    introspection: true, // TODO: Set false in PROD.
+    playground: true // TODO: Set false in PROD.
   },
   mongoDb: {
-    databaseName: process.env.MONGODB_DB_NAME as string,
+    databaseName: process.env.MONGODB_DB_NAME || 'newMogo',
     url:
       process.env.MONGODB_CONNECTION_STRING ||
-      (process.env.MONGODB_URL as string)
+      process.env.MONGODB_URL ||
+      'mongodb://localhost/mogoDB'
   },
   port: process.env.PORT || defaultPort
 };

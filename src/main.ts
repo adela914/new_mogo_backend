@@ -15,8 +15,8 @@ import { getPayload } from './util';
     resolvers,
     typeDefs: [DIRECTIVES, typeDefs],
     introspection: environment.apollo.introspection,
-    // mockEntireSchema: false, // TODO: Remove in PROD.
-    // mocks: true, // TODO: Remove in PROD.
+    mockEntireSchema: false, // TODO: Remove in PROD.
+    mocks: true, // TODO: Remove in PROD.
     playground: environment.apollo.playground,
     context: ({ req }): { user: UserDbObject; loggedIn: boolean } => {
       // get the user token from the headers
@@ -31,7 +31,7 @@ import { getPayload } from './util';
 
   server
     .listen(environment.port)
-    .then(({ url }) => console.log(`Server ready at ${url}. `))
+    .then(({ url }) => console.log(`Server ready at ${url} 🎉`))
     .catch((errors) => console.log(errors));
 
   if (module.hot) {

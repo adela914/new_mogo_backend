@@ -72,10 +72,9 @@ export const mongoDbProvider = new MongoDbProvider(environment.mongoDb.url);
  * TODO: Remove in Production.
  */
 export async function addMockUsersAsync(): Promise<void> {
-  const usersCount = await mongoDbProvider.restaurantsCollection.countDocuments();
-
+  const usersCount = await mongoDbProvider.usersCollection.countDocuments();
   if (usersCount === 0) {
-    await mongoDbProvider.restaurantsCollection.insertMany([
+    await mongoDbProvider.usersCollection.insertMany([
       {
         _id: new ObjectID('0123456789abcdef01234567'),
         name: 'Test',

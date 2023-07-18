@@ -113,7 +113,7 @@ export type Restaurant = {
   id: Scalars['ID'];
   name: Scalars['String'];
   author: User;
-  description: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
   location?: Maybe<Scalars['String']>;
   likedBy?: Maybe<Array<Maybe<User>>>;
   likes?: Maybe<Scalars['Int']>;
@@ -358,7 +358,7 @@ export type RestaurantResolvers<ContextType = any, ParentType extends ResolversP
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   likedBy?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
   likes?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -434,7 +434,7 @@ export type RestaurantDbObject = {
   _id: ObjectID,
   name: string,
   author: UserDbObject['_id'],
-  description: string,
+  description?: Maybe<string>,
   likedBy?: Maybe<Array<Maybe<UserDbObject['_id']>>>,
 };
 
